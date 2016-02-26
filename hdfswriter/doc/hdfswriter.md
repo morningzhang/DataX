@@ -181,6 +181,15 @@ HdfsWriter提供向HDFS文件系统指定路径中写入TEXTFile文件和ORCFile
 	* 必选：是 <br />
 
 	* 默认值：无 <br />
+	
+* **hdfsSiteXml**
+
+	* 描述：hdfs-site.xml文件的路径,只有在NamenodeHA的情况下需要配置.<br />
+		
+
+	* 必选：否 <br />
+
+	* 默认值：无 <br />
 
 * **fileType**
 
