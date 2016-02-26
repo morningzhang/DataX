@@ -21,6 +21,7 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,29 +31,33 @@ public  class HdfsHelper {
     public FileSystem fileSystem = null;
     public JobConf conf = null;
 
-    public void getFileSystem(String defaultFS){
-        org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
-        hadoopConf.set("fs.defaultFS", defaultFS);
-        conf = new JobConf(hadoopConf);
-        try {
-            fileSystem = FileSystem.get(conf);
-        } catch (IOException e) {
-            String message = String.format("获取FileSystem时发生网络IO异常,请检查您的网络是否正常!HDFS地址：[%s]",
-                    "message:defaultFS =" + defaultFS);
-            LOG.error(message);
-            throw DataXException.asDataXException(HdfsWriterErrorCode.CONNECT_HDFS_IO_ERROR, e);
-        }catch (Exception e) {
+    public void getFileSystem(String defaultFS,String hdfsSiteXml){
+        try{
+            try {
+                org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
+                hadoopConf.set("fs.defaultFS", defaultFS);
+                conf = new JobConf(hadoopConf);
+                fileSystem = FileSystem.get(conf);
+            } catch (Exception e) {
+                LOG.warn( String.format("使用fs.defaultFS=%s,获取FileSystem时发生异常.现在尝试HA模式.hdfsSiteXml=%s",
+                        defaultFS,hdfsSiteXml));
+                try{
+                    org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
+                    hadoopConf.addResource(hdfsSiteXml);
+                    hadoopConf.set("fs.defaultFS",  defaultFS);
+                    conf = new JobConf(hadoopConf);
+                    fileSystem = FileSystem.get(conf);
+                }catch (Exception e1){
+                    LOG.error( String.format("使用hdfsSiteXml=%s,获取FileSystem时发生异常.",
+                            hdfsSiteXml));
+                    throw e1;
+                }
+            }
+        }catch (Exception e){
             String message = String.format("获取FileSystem失败,请检查HDFS地址是否正确: [%s]",
                     "message:defaultFS =" + defaultFS);
             LOG.error(message);
             throw DataXException.asDataXException(HdfsWriterErrorCode.CONNECT_HDFS_IO_ERROR, e);
-        }
-
-        if(null == fileSystem || null == conf){
-            String message = String.format("获取FileSystem失败,请检查HDFS地址是否正确: [%s]",
-                    "message:defaultFS =" + defaultFS);
-            LOG.error(message);
-            throw DataXException.asDataXException(HdfsWriterErrorCode.CONNECT_HDFS_IO_ERROR, message);
         }
     }
 

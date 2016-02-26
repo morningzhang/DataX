@@ -23,6 +23,7 @@ public class HdfsWriter extends Writer {
         private Configuration writerSliceConfig = null;
 
         private String defaultFS;
+        private String hdfsSiteXml;
         private String path;
         private String fileType;
         private String fileName;
@@ -44,11 +45,12 @@ public class HdfsWriter extends Writer {
             //创建textfile存储
             hdfsHelper = new HdfsHelper();
 
-            hdfsHelper.getFileSystem(defaultFS);
+            hdfsHelper.getFileSystem(defaultFS,hdfsSiteXml);
         }
 
         private void validateParameter() {
             this.defaultFS = this.writerSliceConfig.getNecessaryValue(Key.DEFAULT_FS, HdfsWriterErrorCode.REQUIRED_VALUE);
+            this.hdfsSiteXml = this.writerSliceConfig.getString(Key.HDFS_SITE_XML);
             //fileType check
             this.fileType = this.writerSliceConfig.getNecessaryValue(Key.FILE_TYPE, HdfsWriterErrorCode.REQUIRED_VALUE);
             if( !fileType.equalsIgnoreCase("ORC") && !fileType.equalsIgnoreCase("TEXT")){
@@ -321,6 +323,7 @@ public class HdfsWriter extends Writer {
         private Configuration writerSliceConfig;
 
         private String defaultFS;
+        private String hdfsSiteXml;
         private String fileType;
         private String fileName;
 
@@ -333,9 +336,11 @@ public class HdfsWriter extends Writer {
             this.defaultFS = this.writerSliceConfig.getString(Key.DEFAULT_FS);
             this.fileType = this.writerSliceConfig.getString(Key.FILE_TYPE);
             this.fileName = this.writerSliceConfig.getString(Key.FILE_NAME);
+            this.hdfsSiteXml = this.writerSliceConfig.getString(Key.HDFS_SITE_XML);
+
 
             hdfsHelper = new HdfsHelper();
-            hdfsHelper.getFileSystem(defaultFS);
+            hdfsHelper.getFileSystem(defaultFS,hdfsSiteXml);
         }
 
         @Override

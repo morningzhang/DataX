@@ -8,6 +8,7 @@ public class Key {
     public static final String PATH = "path";
     //must have
     public final static String DEFAULT_FS = "defaultFS";
+    public final static String HDFS_SITE_XML = "hdfsSiteXml";
     //must have
     public final static String FILE_TYPE = "fileType";
     // must have
