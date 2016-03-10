@@ -34,19 +34,18 @@ public  class HdfsHelper {
     public void getFileSystem(String defaultFS,String hdfsSiteXml){
         try{
             try {
-                org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
-                hadoopConf.set("fs.defaultFS", defaultFS);
-                conf = new JobConf(hadoopConf);
+                conf=new JobConf();
+                conf.set("fs.defaultFS",defaultFS);
                 fileSystem = FileSystem.get(conf);
+                LOG.info( String.format("使用fs.defaultFS=%s,获取FileSystem成功.",
+                        defaultFS));
             } catch (Exception e) {
-                LOG.warn( String.format("使用fs.defaultFS=%s,获取FileSystem时发生异常.现在尝试HA模式.hdfsSiteXml=%s",
-                        defaultFS,hdfsSiteXml));
                 try{
-                    org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration();
-                    hadoopConf.addResource(hdfsSiteXml);
-                    hadoopConf.set("fs.defaultFS",  defaultFS);
-                    conf = new JobConf(hadoopConf);
+                    conf=new JobConf();
+                    conf.addResource(new Path(hdfsSiteXml));
+                    conf.set("fs.defaultFS",defaultFS);
                     fileSystem = FileSystem.get(conf);
+                    LOG.info(String.format("使用hdfsSiteXml=%s,获取FileSystem成功.", hdfsSiteXml));
                 }catch (Exception e1){
                     LOG.error( String.format("使用hdfsSiteXml=%s,获取FileSystem时发生异常.",
                             hdfsSiteXml));
