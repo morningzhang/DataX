@@ -2,6 +2,7 @@ package com.alibaba.datax.common.statistics;
 
 import com.alibaba.datax.common.util.Configuration;
 import com.google.common.base.Optional;
+import com.google.common.collect.Collections2;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,7 +149,7 @@ public class PerfTrace {
         info.append("\n   1. all phase average time info and max time task info: \n\n");
         info.append(String.format("%-20s | %18s | %18s | %18s | %18s | %-100s\n", "PHASE", "AVERAGE USED TIME", "ALL TASK NUM", "MAX USED TIME", "MAX TASK ID", "MAX TASK INFO"));
 
-        List<PerfRecord.PHASE> keys = new ArrayList<PerfRecord.PHASE>(perfRecordMaps.keySet());
+        List<PerfRecord.PHASE> keys =Collections.list(perfRecordMaps.keys());
         Collections.sort(keys, new Comparator<PerfRecord.PHASE>() {
             @Override
             public int compare(PerfRecord.PHASE o1, PerfRecord.PHASE o2) {
