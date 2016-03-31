@@ -1,13 +1,5 @@
 package com.alibaba.datax.plugin.reader.hdfsreader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.alibaba.datax.common.element.*;
 import com.alibaba.datax.common.exception.DataXException;
 import com.alibaba.datax.common.plugin.RecordSender;
@@ -15,8 +7,14 @@ import com.alibaba.datax.common.plugin.TaskPluginCollector;
 import com.alibaba.datax.common.util.Configuration;
 import com.alibaba.datax.plugin.unstructuredstorage.reader.UnstructuredStorageReaderErrorCode;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.hive.ql.io.orc.*;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hive.ql.io.orc.OrcFile;
+import org.apache.hadoop.hive.ql.io.orc.OrcInputFormat;
+import org.apache.hadoop.hive.ql.io.orc.OrcSerde;
+import org.apache.hadoop.hive.ql.io.orc.Reader;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.io.Text;
@@ -24,9 +22,16 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.mapred.RecordReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by mingya.wmy on 2015/8/12.
@@ -302,7 +307,7 @@ public class DFSUtil {
                     }
                     Type type = Type.valueOf(columnType.toUpperCase());
                     // it's all ok if nullFormat is null
-                    if (columnValue.equals(nullFormat)) {
+                    if (columnValue==null||columnValue.equals(nullFormat)) {
                         columnValue = null;
                     }
                     switch (type) {
