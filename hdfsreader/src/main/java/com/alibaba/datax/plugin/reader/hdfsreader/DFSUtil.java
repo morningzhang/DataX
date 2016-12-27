@@ -45,9 +45,38 @@ public class DFSUtil {
 
     private String specifiedFileType = null;
 
-    public DFSUtil(String defaultFS){
-        hadoopConf = new org.apache.hadoop.conf.Configuration();
-        hadoopConf.set("fs.defaultFS", defaultFS);
+    public FileSystem fileSystem = null;
+
+    public DFSUtil(String defaultFS,String hdfsSiteXml){
+
+
+
+        try{
+            try {
+                hadoopConf = new org.apache.hadoop.conf.Configuration();
+                hadoopConf.set("fs.defaultFS", defaultFS);
+                fileSystem.get(hadoopConf);
+                LOG.info( String.format("使用fs.defaultFS=%s,获取FileSystem成功.",
+                        defaultFS));
+            } catch (Exception e) {
+                try{
+                    hadoopConf = new org.apache.hadoop.conf.Configuration();
+                    hadoopConf.set("fs.defaultFS", defaultFS);
+                    hadoopConf.addResource(new Path(hdfsSiteXml));
+                    hadoopConf.set("fs.defaultFS",defaultFS);
+                    LOG.info(String.format("使用hdfsSiteXml=%s.获取FileSystem成功.", hdfsSiteXml));
+                }catch (Exception e1){
+                    LOG.error( String.format("使用hdfsSiteXml=%s,获取FileSystem时发生异常.",
+                            hdfsSiteXml));
+                    throw e1;
+                }
+            }
+        }catch (Exception e){
+            String message = String.format("获取FileSystem失败,请检查HDFS地址是否正确: [%s]",
+                    "message:defaultFS =" + defaultFS);
+            LOG.error(message);
+            throw DataXException.asDataXException(HdfsReaderErrorCode.CONNECT_HDFS_IO_ERROR, e);
+        }
     }
 
 

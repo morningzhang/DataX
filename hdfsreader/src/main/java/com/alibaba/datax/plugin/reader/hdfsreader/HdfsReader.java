@@ -7,6 +7,9 @@ import com.alibaba.datax.common.util.Configuration;
 import com.alibaba.datax.plugin.unstructuredstorage.reader.UnstructuredStorageReaderUtil;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.JobConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +40,15 @@ public class HdfsReader extends Reader {
 
         private Configuration readerOriginConfig = null;
         private String defaultFS = null;
+        private String hdfsSiteXml = null;
         private String encoding = null;
         private HashSet<String> sourceFiles;
         private String specifiedFileType = null;
         private DFSUtil dfsUtil = null;
         private List<String> path = null;
+
+
+        public JobConf conf = null;
 
         @Override
         public void init() {
@@ -49,7 +56,7 @@ public class HdfsReader extends Reader {
             LOG.info("init() begin...");
             this.readerOriginConfig = super.getPluginJobConf();
             this.validate();
-            dfsUtil = new DFSUtil(defaultFS);
+            dfsUtil = new DFSUtil(defaultFS,hdfsSiteXml);
             LOG.info("init() ok and end...");
 
         }
@@ -57,6 +64,9 @@ public class HdfsReader extends Reader {
         private void validate(){
             defaultFS = this.readerOriginConfig.getNecessaryValue(Key.DEFAULT_FS,
                     HdfsReaderErrorCode.DEFAULT_FS_NOT_FIND_ERROR);
+            hdfsSiteXml = this.readerOriginConfig.getNecessaryValue(Key.HDFS_SITE_XML,
+                    HdfsReaderErrorCode.HDFS_SITE_XML_NOT_FIND_ERROR);
+
             if (StringUtils.isBlank(defaultFS)) {
                 throw DataXException.asDataXException(
                         HdfsReaderErrorCode.PATH_NOT_FIND_ERROR, "您需要指定 defaultFS");
@@ -222,12 +232,14 @@ public class HdfsReader extends Reader {
 
         private static Logger LOG = LoggerFactory.getLogger(Reader.Task.class);
         private Configuration taskConfig;
+        private JobConf jobConf = null;
         private List<String> sourceFiles;
         private String defaultFS;
         private HdfsFileType fileType;
         private String specifiedFileType;
         private String encoding;
         private DFSUtil dfsUtil = null;
+        private String hdfsSiteXml = null;
 
         @Override
         public void init() {
@@ -238,7 +250,8 @@ public class HdfsReader extends Reader {
                     HdfsReaderErrorCode.DEFAULT_FS_NOT_FIND_ERROR);
             this.specifiedFileType = this.taskConfig.getNecessaryValue(Key.FILETYPE, HdfsReaderErrorCode.REQUIRED_VALUE);
             this.encoding = this.taskConfig.getString(Key.ENCODING, "UTF-8");
-            this.dfsUtil = new DFSUtil(defaultFS);
+            this.hdfsSiteXml = this.taskConfig.getString(Key.HDFS_SITE_XML);
+            this.dfsUtil = new DFSUtil(defaultFS,hdfsSiteXml);
         }
 
         @Override

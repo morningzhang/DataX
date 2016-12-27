@@ -7,6 +7,7 @@ public final class Key {
      */
     public final static String PATH = "path";
     public static final String COLUMN = "column";
+    public final static String HDFS_SITE_XML = "hdfsSiteXml";
     public final static String DEFAULT_FS = "defaultFS";
     public final static String ENCODING = "encoding";
     public static final String TYPE = "type";
